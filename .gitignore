@@ -1,0 +1,33 @@
+# Secrets
+.env
+
+# Resume data cache
+resume_cache.json
+S26_Supervisor_Matched/
+
+# Archived and automation folders
+Archived/
+Resume_updated_automation/
+
+# Reports and data files
+*.xlsx
+*.xls
+*.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Temp files
+*.zip
+*.log

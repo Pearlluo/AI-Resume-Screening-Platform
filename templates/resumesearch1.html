@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Search Portal</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .header { margin-bottom: 28px; }
+    .header h1 { margin: 0; font-size: 32px; color: #111827; }
+    .header p  { margin-top: 8px; color: #6b7280; }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      resize: vertical;
+    }
+
+    textarea:focus,
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .hint {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .link-button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .primary   { background: #2563eb; color: white; }
+    .secondary { background: #e5e7eb; color: #111827; }
+    .warning   { background: #fef3c7; color: #92400e; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    .summary-box .num   { font-size: 26px; font-weight: 700; color: #111827; }
+    .summary-box .label { margin-top: 6px; color: #6b7280; font-size: 13px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th { background: #f3f4f6; font-weight: 700; }
+
+    .badge        { display: inline-block; padding: 4px 8px; background: #dbeafe; color: #1e40af; border-radius: 999px; font-size: 12px; margin: 2px; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-purple { background: #ede9fe; color: #5b21b6; }
+    .badge-green  { background: #d1fae5; color: #065f46; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+
+    .score       { font-weight: 700; color: #047857; }
+    .ai-score    { font-weight: 700; color: #7c3aed; font-size: 18px; }
+    .ds-score    { font-weight: 700; color: #0369a1; font-size: 13px; }
+    .gpt-score   { font-weight: 700; color: #7c3aed; font-size: 13px; }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 40px;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .cache-status {
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      color: #047857;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .cache-loading-card {
+      display: none;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+      border-left: 5px solid #2563eb;
+    }
+
+    .cache-loading-card h3 { margin-top: 0; color: #1d4ed8; }
+
+    progress { width: 100%; height: 24px; }
+
+    .small-text { color: #6b7280; font-size: 12px; line-height: 1.5; }
+
+    .pdf-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .pdf-link:hover { text-decoration: underline; }
+
+    .download-all-btn {
+      background: #047857;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .download-all-btn:hover { background: #065f46; }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .ai-controls {
+      background: #f5f3ff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #ede9fe;
+    }
+
+    .ai-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    /* GPT result card in AI section */
+    .gpt-card {
+      border: 1px solid #ede9fe;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #faf5ff;
+    }
+
+    .gpt-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .gpt-card-meta { margin-top: 8px; font-size: 13px; color: #374151; }
+
+    /* Score pill row inside gpt-card */
+    .score-pills {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .score-pill {
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .score-pill-ds  { background: #e0f2fe; color: #0369a1; }
+    .score-pill-gpt { background: #ede9fe; color: #5b21b6; }
+
+    .ai-detail { max-width: 280px; line-height: 1.5; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      margin-bottom: 18px;
+      user-select: none;
+    }
+
+    .toggle-track {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: #d1d5db;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    @media (max-width: 800px) {
+      .grid,
+      .summary,
+      .ai-controls-grid { grid-template-columns: 1fr; }
+      table { font-size: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Resume Search Portal</h1>
+    <p>Search resume text by keywords first, then rank matched resumes using job requirement terms.</p>
+  </div>
+
+  <div id="cacheLoadingBox" class="cache-loading-card">
+    <h3>⏳ Loading Resume Cache</h3>
+    <p id="cacheProgressText">Loading...</p>
+    <progress id="cacheProgressBar" value="0" max="100"></progress>
+  </div>
+
+  <div class="cache-status">
+    Loaded resume cache:
+    <span id="loadedCount">{{ total_resumes or 0 }}</span> resumes
+  </div>
+
+  <form method="POST" action="/search" class="card"
+        onsubmit="showLoading('Searching resumes... Please wait.')">
+
+    <div class="grid">
+      <div class="form-group">
+        <label for="keywords">Keywords / Certificates</label>
+        <textarea id="keywords" name="keywords" rows="8"
+          placeholder="Enter keywords, one per line or comma separated">{{ keywords or "" }}</textarea>
+        <div class="hint">First filter. Only resumes matching all these keywords will be scored.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="job_requirement">Job Requirement</label>
+        <textarea id="job_requirement" name="job_requirement" rows="8"
+          placeholder="Paste job requirement here">{{ job_requirement or "" }}</textarea>
+        <div class="hint">Important terms will be extracted and used for scoring matched resumes.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="top_n">Top Results</label>
+      <input id="top_n" name="top_n" type="number"
+             value="{{ top_n or 10 }}" min="0" max="99999" />
+      <div class="hint">Use 0 to show all matched results.</div>
+    </div>
+
+    <div class="toggle-row" onclick="toggleAiPanel()">
+      <div class="toggle-track" id="aiToggleTrack">
+        <div class="toggle-thumb" id="aiToggleThumb"></div>
+      </div>
+      <span style="font-weight:600; color:#5b21b6;">
+        Enable AI Screening (Deepseek → GPT-4o mini)
+      </span>
+    </div>
+
+    <div id="aiPanel" style="display:none; margin-bottom:18px;">
+      <div class="ai-controls">
+        <div class="hint" style="margin-bottom:12px;">
+          Set how many candidates each AI stage analyses.
+          Click <strong>Run AI Screening</strong> in the results to trigger.
+        </div>
+        <div class="ai-controls-grid">
+          <div>
+            <label for="deepseek_top_n" style="font-size:13px;">Deepseek pre-screen top N</label>
+            <input id="deepseek_top_n" name="deepseek_top_n" type="number"
+                   value="{{ deepseek_top_n or 10 }}" min="1" max="50" />
+            <div class="hint">Deepseek scores this many from keyword results</div>
+          </div>
+          <div>
+            <label for="gpt_top_n" style="font-size:13px;">GPT-4o mini final top N</label>
+            <input id="gpt_top_n" name="gpt_top_n" type="number"
+                   value="{{ gpt_top_n or 5 }}" min="1" max="20" />
+            <div class="hint">GPT deep-analyses this many from Deepseek output</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="primary">Run Search</button>
+      <button type="reset" class="secondary">Clear</button>
+      <a href="/refresh-cache" class="link-button warning"
+         onclick="showLoading('Refreshing resume cache from Azure Blob... This may take a few minutes.')">
+        Refresh Cache
+      </a>
+    </div>
+
+    <div id="loadingBox" class="loading">
+      ⏳ <span id="loadingText">Processing...</span>
+    </div>
+  </form>
+
+  <div class="summary">
+    <div class="summary-box">
+      <div class="num" id="loadedSummary">{{ total_resumes or 0 }}</div>
+      <div class="label">Loaded Resumes</div>
+    </div>
+    <div class="summary-box">
+      <div class="num">{{ total_results or 0 }}</div>
+      <div class="label">Matched Resumes</div>
+    </div>
+    <div class="summary-box">
+      <div class="num">{{ requirement_terms|length if requirement_terms else 0 }}</div>
+      <div class="label">Requirement Terms</div>
+    </div>
+    <div class="summary-box">
+      <div class="num">{{ results|length if results else 0 }}</div>
+      <div class="label">Shown Results</div>
+    </div>
+  </div>
+
+  {% if requirement_terms and requirement_terms|length > 0 %}
+  <div class="card">
+    <h2>Extracted Requirement Terms</h2>
+    {% for item in requirement_terms %}
+      <span class="badge badge-yellow">{{ item.term }} × {{ item.requirement_count }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── AI Screening Results card ── -->
+  {% if gpt_results and gpt_results|length > 0 %}
+  <div class="card" style="border-left:5px solid #7c3aed;">
+    <h2 style="color:#5b21b6;">AI Screening Results — Top {{ gpt_results|length }}</h2>
+    <p class="hint">
+      Deepseek pre-screened {{ deepseek_results|length }} candidates →
+      GPT-4o mini deep-analysed {{ gpt_results|length }}
+    </p>
+
+    {% for row in gpt_results %}
+    <div class="gpt-card">
+
+      <!-- Score pills: Deepseek + GPT side by side -->
+      <div class="score-pills">
+        <span class="score-pill score-pill-ds">🔵 Deepseek: {{ row.ds_quick_score }}/100</span>
+        <span class="score-pill score-pill-gpt">🟣 GPT: {{ row.ai_match_score }}/100</span>
+        <span class="badge badge-purple">{{ row.ai_recommendation }}</span>
+      </div>
+
+      <div class="gpt-card-header">
+        <strong style="font-size:16px;">{{ row.employee_name or row.employee_id }}</strong>
+        <span class="small-text">ID: {{ row.employee_id }}</span>
+        <span class="small-text">Doc: {{ row.document_id }}</span>
+      </div>
+
+      {% if row.ai_short_summary %}
+        <p style="margin:4px 0 8px; font-size:14px;">{{ row.ai_short_summary }}</p>
+      {% endif %}
+
+      <div class="gpt-card-meta">
+        <strong>Role:</strong> {{ row.ai_role_match }} &nbsp;|&nbsp;
+        <strong>Industry:</strong> {{ row.ai_industry_match }} &nbsp;|&nbsp;
+        <strong>Licences:</strong> {{ row.ai_licence_ticket_match }}
+      </div>
+
+      <!-- Matched / missing keywords -->
+      <div style="margin-top:8px;">
+        {% for kw in row.ai_matched_keywords %}
+          <span class="badge badge-green">✓ {{ kw }}</span>
+        {% endfor %}
+        {% for kw in row.ai_missing_keywords %}
+          <span class="badge badge-red">✗ {{ kw }}</span>
+        {% endfor %}
+      </div>
+
+      <!-- Matched requirements -->
+      {% if row.ai_matched_requirements and row.ai_matched_requirements|length > 0 %}
+        <div style="margin-top:6px;">
+          <span class="small-text"><strong>Met:</strong></span>
+          {% for req in row.ai_matched_requirements %}
+            <span class="badge badge-green">{{ req }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Missing requirements -->
+      {% if row.ai_missing_requirements and row.ai_missing_requirements|length > 0 %}
+        <div style="margin-top:4px;">
+          <span class="small-text"><strong>Missing:</strong></span>
+          {% for req in row.ai_missing_requirements %}
+            <span class="badge badge-red">{{ req }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Risk flags -->
+      {% if row.ai_risk_flags and row.ai_risk_flags|length > 0 %}
+        <div style="margin-top:6px;">
+          {% for flag in row.ai_risk_flags %}
+            <span class="badge badge-red">⚠ {{ flag }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Experience evidence -->
+      {% if row.ai_experience_evidence and row.ai_experience_evidence|length > 0 %}
+        <div style="margin-top:6px;" class="small-text">
+          <strong>Evidence:</strong>
+          {% for ev in row.ai_experience_evidence %}
+            <div>• {{ ev }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if row.original_blob %}
+        <div style="margin-top:10px;">
+          <a href="/download-highlighted/{{ row.employee_id }}/{{ row.document_id }}"
+             class="pdf-link"
+             onclick="showLoading('Generating highlighted PDF...')">
+            Download Highlighted PDF
+          </a>
+        </div>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── Keyword search results table ── -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <h2>Keyword Search Results</h2>
+
+      {% if results and results|length > 0 %}
+      <div class="result-actions">
+        <form method="POST" action="/run-ai-screening"
+              onsubmit="showLoading('Running AI screening... This may take a minute.')">
+          <input type="hidden" name="deepseek_top_n" value="{{ deepseek_top_n or 10 }}">
+          <input type="hidden" name="gpt_top_n"      value="{{ gpt_top_n or 5 }}">
+          <button type="submit" style="
+            background: #7c3aed; color: white; border: none;
+            border-radius: 10px; padding: 10px 16px;
+            font-size: 14px; font-weight: 600; cursor: pointer;">
+            🤖 Run AI Screening
+          </button>
+        </form>
+
+        <a href="/download-all-highlighted-results"
+           class="download-all-btn"
+           onclick="showLoading('Downloading all highlighted resumes...')">
+          Download All Highlighted Results
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Employee</th>
+          <th>Document ID</th>
+          <th>Score</th>
+          <th>AI Analysis</th>
+          <th>Matched Keywords</th>
+          <th>Matched Requirement Terms</th>
+          <th>Resume Blob</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% if results and results|length > 0 %}
+
+          {# Build a lookup map: employee_id → gpt result #}
+          {% set gpt_map = {} %}
+          {% for g in gpt_results %}
+            {% if gpt_map.update({g.employee_id ~ '_' ~ g.document_id: g}) %}{% endif %}
+          {% endfor %}
+
+          {% for row in results %}
+          {% set gpt_row = gpt_map.get(row.employee_id ~ '_' ~ row.document_id) %}
+          <tr>
+            <td>{{ loop.index }}</td>
+
+            <td>
+              <strong>{{ row.employee_id }}</strong>
+              {% if row.employee_name %}
+                <br><span class="small-text">{{ row.employee_name }}</span>
+              {% endif %}
+            </td>
+
+            <td>{{ row.document_id }}</td>
+
+            <td>
+              <span class="score">{{ row.score }}</span>
+              <br>
+              <span class="small-text">
+                Keyword: {{ row.keyword_score }}<br>
+                Requirement: {{ row.requirement_score }}
+              </span>
+            </td>
+
+            <!-- AI Analysis column: show both DS and GPT scores if available -->
+            <td class="ai-detail">
+              {% if gpt_row %}
+                <!-- GPT score -->
+                <div style="margin-bottom:4px;">
+                  <span class="score-pill score-pill-gpt">🟣 GPT: {{ gpt_row.ai_match_score }}/100</span>
+                </div>
+                <!-- Deepseek score -->
+                <div style="margin-bottom:6px;">
+                  <span class="score-pill score-pill-ds">🔵 DS: {{ gpt_row.ds_quick_score }}/100</span>
+                </div>
+                <span class="badge badge-purple">{{ gpt_row.ai_recommendation }}</span>
+
+                {% if gpt_row.ai_short_summary %}
+                  <div class="small-text" style="margin-top:4px;">
+                    {{ gpt_row.ai_short_summary }}
+                  </div>
+                {% endif %}
+
+                {% if gpt_row.ai_missing_requirements and gpt_row.ai_missing_requirements|length > 0 %}
+                  <div class="small-text" style="margin-top:4px;">
+                    <strong>Missing:</strong>
+                    {% for item in gpt_row.ai_missing_requirements %}
+                      <span class="badge badge-red">{{ item }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                {% if gpt_row.ai_risk_flags and gpt_row.ai_risk_flags|length > 0 %}
+                  <div class="small-text" style="margin-top:4px;">
+                    {% for item in gpt_row.ai_risk_flags %}
+                      <span class="badge badge-red">⚠ {{ item }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+              {% else %}
+                {# Check if candidate was Deepseek-screened but not GPT #}
+                {% set ds_row = namespace(found=none) %}
+                {% for d in deepseek_results %}
+                  {% if d.employee_id == row.employee_id and d.document_id == row.document_id %}
+                    {% set ds_row.found = d %}
+                  {% endif %}
+                {% endfor %}
+
+                {% if ds_row.found %}
+                  <span class="score-pill score-pill-ds">🔵 DS: {{ ds_row.found.ds_quick_score }}/100</span>
+                  <div class="small-text" style="margin-top:4px;">{{ ds_row.found.ds_quick_reason }}</div>
+                {% else %}
+                  <span class="small-text">Not analysed</span>
+                {% endif %}
+              {% endif %}
+            </td>
+
+            <td>
+              {% for item in row.matched_keywords %}
+                <span class="badge">{{ item.keyword }} × {{ item.count }}</span>
+              {% endfor %}
+            </td>
+
+            <td>
+              {% for item in row.matched_requirement_terms %}
+                <span class="badge badge-yellow">{{ item.term }} × {{ item.count }}</span>
+              {% endfor %}
+            </td>
+
+            <td>
+              {% if row.original_blob %}
+                <div class="small-text">
+                  <strong>PDF:</strong>
+                  <a href="/download-highlighted/{{ row.employee_id }}/{{ row.document_id }}"
+                     class="pdf-link"
+                     onclick="showLoading('Generating highlighted PDF...')">
+                    {{ row.original_blob }}
+                  </a>
+                </div>
+              {% endif %}
+              <div class="small-text"><strong>TXT:</strong> {{ row.text_blob }}</div>
+            </td>
+          </tr>
+          {% endfor %}
+
+        {% else %}
+          <tr>
+            <td colspan="8" class="empty">
+              No results yet. Enter keywords and job requirement, then run search.
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  function showLoading(message) {
+    const box  = document.getElementById("loadingBox");
+    const text = document.getElementById("loadingText");
+    if (text && message) text.innerText = message;
+    if (box) box.style.display = "block";
+  }
+
+  let aiEnabled = false;
+
+  function toggleAiPanel() {
+    aiEnabled = !aiEnabled;
+    const panel = document.getElementById("aiPanel");
+    const track = document.getElementById("aiToggleTrack");
+    const thumb = document.getElementById("aiToggleThumb");
+
+    if (aiEnabled) {
+      panel.style.display    = "block";
+      track.style.background = "#7c3aed";
+      thumb.style.transform  = "translateX(20px)";
+    } else {
+      panel.style.display    = "none";
+      track.style.background = "#d1d5db";
+      thumb.style.transform  = "translateX(0)";
+    }
+  }
+
+  async function refreshCacheStatus() {
+    try {
+      const response = await fetch("/cache-status");
+      const data = await response.json();
+
+      document.getElementById("loadedCount").innerText   = data.loaded_resumes;
+      document.getElementById("loadedSummary").innerText = data.loaded_resumes;
+
+      const loadingBox   = document.getElementById("cacheLoadingBox");
+      const progressText = document.getElementById("cacheProgressText");
+      const progressBar  = document.getElementById("cacheProgressBar");
+
+      if (data.cache_loading) {
+        loadingBox.style.display = "block";
+        progressText.innerText   = `Loaded ${data.cache_progress} / ${data.cache_total}`;
+        progressBar.value        = data.cache_progress;
+        progressBar.max          = data.cache_total || 100;
+      } else {
+        loadingBox.style.display = "none";
+      }
+    } catch (e) {
+      console.log("Cache status error:", e);
+    }
+  }
+
+  setInterval(refreshCacheStatus, 2000);
+  refreshCacheStatus();
+</script>
+
+</body>
+</html>

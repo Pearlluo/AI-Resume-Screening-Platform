@@ -1,0 +1,9 @@
+Flask
+python-dotenv
+azure-storage-blob
+PyMuPDF
+requests
+pandas
+openpyxl
+python-docx
+openai
