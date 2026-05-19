@@ -18,22 +18,30 @@ A Flask web app that screens resumes from Azure Blob Storage using a three-stage
 
 ```mermaid
 flowchart TD
-    A["Azure Blob Storage\n1330+ resume text files\ncached locally"] --> B
+    A["☁️ Azure Blob Storage\n1330+ resume text files\ncached locally"]:::azure --> B
 
-    B["Keyword hard filter\nMust match ALL keywords — non-matching excluded\nSurvivors scored: hits ×10 + requirement terms ×3"]
-    B -->|No match| X["Excluded"]
+    B["🔍 Keyword hard filter\nMust match ALL keywords\nScored: hits ×10 + terms ×3"]:::keyword
+    B -->|❌ No match| X["Excluded"]:::excluded
     B -->|Top N results| C
 
-    C["Anonymizer\nCandidate names stripped before any API call"]
+    C["🔒 Anonymizer\nCandidate names stripped\nbefore any API call"]:::anon
     C --> D
 
-    D["Stage 1 — Deepseek  parallel ×5\nFast pre-screen: quick_score 0–100\nrole_relevance, keyword_coverage"]
+    D["🔵 Stage 1 — Deepseek  parallel ×5\nFast pre-screen: quick_score 0–100\nrole_relevance, keyword_coverage"]:::deepseek
     D -->|Top deepseek_top_n default 10| E
 
-    E["Stage 2 — GPT-4o mini  parallel ×3\nmatch_score, recommendation\nmet/missing requirements, licence match\nrisk flags, experience evidence\nEnforced via json_schema structured output"]
+    E["🟣 Stage 2 — GPT-4o mini  parallel ×3\nmatch_score, recommendation\nmet/missing requirements\nlicence match, risk flags, evidence"]:::gpt
     E -->|Top gpt_top_n default 5| F
 
-    F["Ranked results\nDeepseek + GPT scores displayed\nHighlighted PDF download"]
+    F["✅ Ranked results\nDeepseek + GPT scores\nHighlighted PDF download"]:::output
+
+    classDef azure   fill:#e8f4f8,stroke:#0078d4,color:#003a6b
+    classDef keyword fill:#e6f4ea,stroke:#1d9e75,color:#0a4a2a
+    classDef excluded fill:#fde8e8,stroke:#e24b4a,color:#7a1f1f
+    classDef anon    fill:#f1f0f0,stroke:#888780,color:#2c2c2a
+    classDef deepseek fill:#e8f0fe,stroke:#4285f4,color:#0c2d6b
+    classDef gpt     fill:#f0ebff,stroke:#7c3aed,color:#2e1065
+    classDef output  fill:#ecfdf5,stroke:#059669,color:#064e3b
 ```
 
 ---
